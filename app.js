@@ -1026,87 +1026,102 @@ function generateReceiptView(payment) {
     const cc = curMap[payment.currency] || payment.currency;
 
     paper.innerHTML = `
-        <div style="background:#fff; font-family:'Cairo', sans-serif; color:#333; width: 100%;">
+        <div style="background:#fff; font-family:'Cairo', sans-serif; color:#1a1a1a; width: 100%; padding: 10px; box-sizing: border-box;">
             <!-- Header -->
-            <div style="text-align: center; margin-bottom: 20px;">
-                <img src="${typeof LOGO_BASE64 !== 'undefined' ? LOGO_BASE64 : 'logo.png'}" alt="شعار السبطين" style="max-height: 110px; width: auto; object-fit: contain; margin-bottom: 5px;">
-                <div style="margin-top: 10px; color: #1b1f3b; font-size: 22px; font-weight: 900;">وصل استلام</div>
-                <div style="color: #777; font-size: 12px; font-weight: 500;">Receipt Voucher</div>
+            <div style="text-align: center; margin-bottom: 15px; border-bottom: 3px solid #d95c14; padding-bottom: 10px;">
+                <img src="${typeof LOGO_BASE64 !== 'undefined' ? LOGO_BASE64 : 'logo.png'}" alt="شعار السبطين" style="max-height: 90px; width: auto; margin-bottom: 8px;">
+                <div style="font-size: 24px; font-weight: 900; color: #1b1f3b; margin: 0;">وصل استلام</div>
+                <div style="font-size: 12px; color: #666; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Receipt Voucher</div>
             </div>
-            
-            <!-- Orange Divider -->
-            <div style="height: 2px; background-color: #d95c14; margin-bottom: 20px; width: 100%;"></div>
             
             <!-- Details Grid -->
-            <div style="display: flex; flex-direction: column; gap: 12px; text-align: right;">
-                <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #eaeaea; padding-bottom: 8px;">
-                    <span style="color: #666; font-size: 14px;">رقم الإيصال / Receipt No.</span>
-                    <strong style="font-size: 15px; color: #333;" dir="ltr">${payment.id}</strong>
-                </div>
-                <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #eaeaea; padding-bottom: 8px;">
-                    <span style="color: #666; font-size: 14px;">التاريخ / Date</span>
-                    <strong style="font-size: 15px; color: #333;" dir="ltr">${payment.date}</strong>
-                </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
                 
-                <div style="border-bottom: 1px dashed #eaeaea; padding-bottom: 8px;">
-                    <div style="color: #666; font-size: 14px; margin-bottom: 4px;">استلمنا من السيد/السيدة / Received From</div>
-                    <div style="font-size: 17px; font-weight: 700; color: #333;">${payment.name}</div>
-                </div>
-                
-                <div style="border-bottom: 1px dashed #eaeaea; padding-bottom: 8px;">
-                    <div style="color: #666; font-size: 14px; margin-bottom: 4px;">المقابل / Being For</div>
-                    <div style="font-size: 16px; font-weight: 700; color: #333;">${payment.description}</div>
-                </div>
-
-                <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #eaeaea; padding-bottom: 8px;">
-                    <span style="color: #666; font-size: 14px;">طريقة الدفع / Method</span>
-                    <strong style="font-size: 15px; color: #333;">${payment.method}</strong>
-                </div>
-
-                <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #eaeaea; padding-bottom: 8px; background-color: #f9f9f9; padding: 10px; border-radius: 4px; margin-top: 5px;">
-                    <span style="color: #333; font-size: 15px; font-weight: 600;">المبلغ المستلم / Received</span>
-                    <strong style="font-size: 18px; color: #1b1f3b;" dir="ltr">${cc} ${payment.paid}</strong>
-                </div>
-                
-                <div style="display: flex; justify-content: space-between; padding: 10px; border-radius: 4px;">
-                    <span style="color: #666; font-size: 14px;">المبلغ المتبقي / Remaining</span>
-                    <strong style="font-size: 16px; color: #d95c14;" dir="ltr">${cc} ${payment.remaining}</strong>
-                </div>
-            </div>
-            
-            <!-- Signatures and Stamps -->
-            <div style="margin-top: 40px; display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; padding: 0 10px;">
-                
-                <!-- Electronic Signature -->
-                <div style="text-align: center; flex: 1; position: relative;">
-                    <div style="height: 100px; display: flex; align-items: flex-end; justify-content: center; margin-bottom: 5px;">
-                        ${payment.signature ? `<img src="${payment.signature}" style="max-height: 140px; max-width: 200px; object-fit: contain; transform: scale(1.15); transform-origin: bottom center;" alt="توقيع">` : ''}
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid #f0f0f0; padding-bottom: 5px;">
+                    <div style="text-align: right;">
+                        <div style="font-size: 13px; font-weight: 700;">رقم الإيصال</div>
+                        <div style="font-size: 10px; color: #999;">Receipt No.</div>
                     </div>
-                    <div style="border-top: 1px dashed #ccc; padding-top: 5px; font-size: 13px; font-weight: 700; color: #555;">توقيع المستلم</div>
+                    <div style="font-size: 16px; font-weight: 800; color: #d95c14;" dir="ltr">${payment.id}</div>
                 </div>
 
-                <!-- Spacer -->
-                <div style="width: 20px;"></div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid #f0f0f0; padding-bottom: 5px;">
+                    <div style="text-align: right;">
+                        <div style="font-size: 13px; font-weight: 700;">التاريخ</div>
+                        <div style="font-size: 10px; color: #999;">Date</div>
+                    </div>
+                    <div style="font-size: 15px; font-weight: 700;" dir="ltr">${payment.date}</div>
+                </div>
 
-                <!-- Stamp Image -->
-                <div style="flex: 1; text-align: center;">
-                    <img src="${typeof STAMP_BASE64 !== 'undefined' ? STAMP_BASE64 : 'stamp.png'}" style="width: 120px; height: 120px; object-fit: contain; transform: rotate(-5deg); opacity: 0.95;" alt="ختم السبطين">
+                <div style="text-align: right; border-bottom: 1px solid #f0f0f0; padding-bottom: 5px;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="font-size: 13px; font-weight: 700;">استلمنا من السيد/السيدة</span>
+                        <span style="font-size: 10px; color: #999;">Received From</span>
+                    </div>
+                    <div style="font-size: 18px; font-weight: 800; color: #1b1f3b; margin-top: 5px;">${payment.name}</div>
+                </div>
+
+                <div style="text-align: right; border-bottom: 1px solid #f0f0f0; padding-bottom: 5px;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="font-size: 13px; font-weight: 700;">وذلك عن / المقابل</span>
+                        <span style="font-size: 10px; color: #999;">Being For</span>
+                    </div>
+                    <div style="font-size: 15px; font-weight: 700; color: #444; margin-top: 3px;">${payment.description || payment.tripName}</div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #f0f0f0; padding-bottom: 5px;">
+                    <div style="text-align: right;">
+                        <div style="font-size: 13px; font-weight: 700;">طريقة الدفع</div>
+                        <div style="font-size: 10px; color: #999;">Method</div>
+                    </div>
+                    <div style="font-size: 15px; font-weight: 700;">${payment.method}</div>
+                </div>
+
+                <!-- Money Box -->
+                <div style="margin-top: 15px; background: #f9f9f9; border-radius: 10px; border: 1px solid #eee; overflow: hidden;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(217, 92, 20, 0.08);">
+                        <div style="text-align: right;">
+                            <div style="font-size: 14px; font-weight: 800; color: #1b1f3b;">المبلغ المستلم</div>
+                            <div style="font-size: 10px; color: #666;">Amount Received</div>
+                        </div>
+                        <div style="font-size: 22px; font-weight: 900; color: #d95c14;">${payment.paid} <small style="font-size: 12px;">${cc}</small></div>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px;">
+                        <div style="text-align: right;">
+                            <div style="font-size: 13px; font-weight: 700;">المبلغ المتبقي</div>
+                            <div style="font-size: 10px; color: #999;">Remaining Amount</div>
+                        </div>
+                        <div style="font-size: 16px; font-weight: 800; color: #555;">${payment.remaining} <small style="font-size: 11px;">${cc}</small></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer Signatures -->
+            <div style="margin-top: 30px; display: flex; justify-content: space-between; position: relative; min-height: 120px;">
+                
+                <div style="text-align: center; flex: 1; z-index: 2;">
+                    <div style="height: 80px; display: flex; align-items: flex-end; justify-content: center;">
+                        ${payment.signature ? `<img src="${payment.signature}" style="max-height: 100px; max-width: 150px; object-fit: contain;" alt="Signature">` : ''}
+                    </div>
+                    <div style="border-top: 1px solid #ccc; margin-top: 5px; font-size: 12px; font-weight: 800;">توقيع المستلم</div>
+                </div>
+
+                <div style="flex: 1; display: flex; justify-content: center; align-items: center;">
+                    <img src="${typeof STAMP_BASE64 !== 'undefined' ? STAMP_BASE64 : 'stamp.png'}" style="width: 100px; height: 100px; object-fit: contain; opacity: 0.9; transform: rotate(-10deg);" alt="Stamp">
                 </div>
 
             </div>
             
-            <!-- Footer Details -->
-            <div style="margin-top: 20px; display: flex; flex-direction: column; align-items: center; gap: 10px;">
-                <div style="text-align: center; color: #d95c14; font-size: 12px; font-weight: 600; direction: ltr;">
-                    <div><i class="fab fa-instagram"></i> qafialt_alsebtain | <i class="fab fa-whatsapp"></i> +973 33 4 111 31</div>
-                </div>
-                
-                <div style="color: #bbb; font-size: 11px;">
-                    Generated by Al-Sebtain System
-                </div>
+            <!-- Contact Info -->
+            <div style="margin-top: 20px; text-align: center; border-top: 1px solid #eee; padding-top: 10px;">
+                <div style="color: #d95c14; font-size: 12px; font-weight: 800; letter-spacing: 0.5px;">+973 33411131 | @qafialt_alsebtain</div>
+                <div style="color: #999; font-size: 10px; margin-top: 4px;">Generated by Al-Sebtain System</div>
             </div>
         </div>
     `;
+
+    document.getElementById('receipt-preview-container').classList.remove('hidden');
 
     // Setup Print & PDF Buttons
     document.getElementById('btn-print-receipt').onclick = () => {
