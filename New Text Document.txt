@@ -1,0 +1,15 @@
+  ستايل احترافي، اريد  "
+
+الدور (Role): "تصرف كمصمم تجربة مستخدم (UX/UI Designer) خبير."
+
+الهدف (Goal): "صمم واجهة هبوط (Landing Page) عصرية لـ السفر والسياحة]."
+
+النمط البصري (Visual Style): (مثلاً: Minimalist, Futuristic, Retro, Corporate).
+
+لوحة الألوان (Color Palette): (مثلاً: ألوان الباستيل، أو تباين عالي بين الأسود والبرتقالي).
+
+الخطوط (Alyamama Regular): (مثلاً: خطوط Sans-serif عريضة وجريئة).
+
+
+https://app.netlify.com/
+

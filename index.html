@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منظومة السبطين للسياحة - إدارة المسافرين</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- SheetJS for Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- jsPDF for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- html2canvas for PDF rendering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- IndexedDB Wrapper -->
+    <script src="https://cdn.jsdelivr.net/npm/idb@7/build/umd.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Theme Toggle -->
+    <button id="theme-toggle" class="theme-btn" title="تغيير المظهر">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <!-- Sidebar / Navigation -->
+    <nav class="sidebar" id="sidebar">
+        <div class="logo" style="justify-content: center; padding: 1.5rem 1rem;">
+            <img id="sidebar-logo" src="logo.png" alt="السبطين للسياحة"
+                style="max-height: 120px; width: auto; object-fit: contain;">
+        </div>
+        <ul class="nav-links">
+            <li class="active" data-target="entry-section">
+                <i class="fas fa-user-plus"></i> <span class="nav-text">إدخال البيانات</span>
+            </li>
+            <li data-target="lists-section">
+                <i class="fas fa-list-alt"></i> <span class="nav-text">القوائم والرحلات</span>
+            </li>
+            <li data-target="payments-section">
+                <i class="fas fa-file-invoice-dollar"></i> <span class="nav-text">الدفع والأرصدة</span>
+            </li>
+            <li data-target="backup-section">
+                <i class="fas fa-database"></i> <span class="nav-text">النسخ الاحتياطي</span>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Section: Data Entry -->
+        <section id="entry-section" class="content-section active">
+            <div class="section-header">
+                <h1>إدخال بيانات المسافرين</h1>
+                <p>قم بإضافة بيانات المسافر لرحلة جديدة أو حالية</p>
+            </div>
+
+            <div class="glass-card">
+                <form id="passenger-form">
+                    <div class="form-header">
+                        <h3>معلومات المسافر الأساسية</h3>
+                        <span class="file-number">رقم الملف: <strong id="file-number-display">---</strong></span>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label><i class="fas fa-user"></i> اسم المسافر الكامل</label>
+                            <input type="text" id="full-name" required
+                                placeholder="أدخل اسم المسافر الثلاثي أو الرباعي">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-phone"></i> رقم الهاتف</label>
+                            <input type="tel" id="phone" required placeholder="مثال: 00973xxxxxxx">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-passport"></i> رقم الجواز</label>
+                            <input type="text" id="passport" required placeholder="رقم جواز السفر">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-flag"></i> الجنسية</label>
+                            <input type="text" id="nationality" required placeholder="الجنسية">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-map-marker-alt"></i> وجهة السفر</label>
+                            <input type="text" id="destination" required placeholder="البلد المقصود">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-calendar-alt"></i> تاريخ السفر</label>
+                            <input type="date" id="travel-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-calendar-check"></i> تاريخ الرجوع</label>
+                            <input type="date" id="return-date" required>
+                        </div>
+                    </div>
+
+                    <div class="form-divider"></div>
+
+                    <div class="form-header">
+                        <h3>معلومات الرحلة والقائمة</h3>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group autocomplete-container">
+                            <label><i class="fas fa-plane"></i> اسم الرحلة</label>
+                            <input type="text" id="trip-name" required placeholder="مثال: رحلة دبي 2024"
+                                list="trip-options">
+                            <datalist id="trip-options"></datalist>
+                        </div>
+                        <div class="form-group autocomplete-container">
+                            <label><i class="fas fa-users"></i> اسم القائمة</label>
+                            <input type="text" id="list-name" required placeholder="مثال: المجموعة الأولى - عائلة فلان"
+                                list="list-options">
+                            <datalist id="list-options"></datalist>
+                        </div>
+                        <div class="form-group full-width align-end">
+                            <button type="button" id="btn-new-trip" class="btn btn-secondary">
+                                <i class="fas fa-plus-circle"></i> رحلة جديدة (مسح أسماء الرحلة والقائمة)
+                            </button>
+                        </div>
+                        <div class="form-group full-width">
+                            <label><i class="fas fa-comment"></i> الملاحظات</label>
+                            <textarea id="notes" rows="3"
+                                placeholder="أي ملاحظات إضافية بخصوص المسافر أو السكن أو الطيران..."></textarea>
+                        </div>
+                        <div class="form-group full-width">
+                            <label><i class="fas fa-paperclip"></i> المرفقات (صور جواز، تأشيرة)</label>
+                            <input type="file" id="attachments" multiple accept="image/*,.pdf" class="file-input">
+                            <div id="attachment-preview" class="file-preview-container"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-large">
+                            <i class="fas fa-save"></i> حفظ البيانات
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- Section: Lists -->
+        <section id="lists-section" class="content-section">
+            <div class="section-header flex-between">
+                <div>
+                    <h1>القوائم والرحلات</h1>
+                    <p>إدارة قوائم السفر، الفرز، البحث، النقل، والتصدير</p>
+                </div>
+                <div class="header-actions">
+                    <button id="btn-export-all" class="btn btn-success">
+                        <i class="fas fa-file-excel"></i> تصدير الكل (Excel)
+                    </button>
+                </div>
+            </div>
+
+            <div class="filter-card glass-card">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>بحث باسم المسافر</label>
+                        <input type="text" id="search-passenger" placeholder="اكتب للبحث...">
+                    </div>
+                    <div class="form-group">
+                        <label>تصفية باسم الرحلة</label>
+                        <select id="filter-trip">
+                            <option value="">الكل</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>تصفية باسم القائمة</label>
+                        <select id="filter-list">
+                            <option value="">الكل</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tables-container">
+                <!-- Data Tables will be rendered here dynamically -->
+            </div>
+        </section>
+
+        <!-- Section: Payments -->
+        <section id="payments-section" class="content-section">
+            <div class="section-header flex-between">
+                <div>
+                    <h1>نظام الدفع والأرصدة</h1>
+                    <p>إصدار وصولات الدفع وتتبع المبالغ المتبقية</p>
+                </div>
+                <div class="header-actions">
+                    <button id="btn-export-payments" class="btn btn-success">
+                        <i class="fas fa-file-excel"></i> تصدير التقرير المالي (Excel)
+                    </button>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <form id="payment-form">
+                    <div class="form-header">
+                        <h3>إصدار رصيد جديد</h3>
+                        <span class="file-number">رقم الرصيد: <strong id="receipt-number-display">---</strong></span>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label>اختيار المسافر (سحب البيانات تلقائياً)</label>
+                            <select id="pay-passenger-select" class="passenger-select">
+                                <option value="">-- اختر مسافراً --</option>
+                                <!-- Population dyn -->
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class="fas fa-user"></i> اسم المسافر</label>
+                            <input type="text" id="pay-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-phone"></i> رقم الهاتف</label>
+                            <input type="tel" id="pay-phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-plane"></i> اسم الرحلة (لأغراض التقرير)</label>
+                            <input type="text" id="pay-trip-name" list="trip-options" placeholder="مثال: رحلة دبي 2024">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-calendar-alt"></i> تاريخ الدفع</label>
+                            <input type="date" id="pay-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-coins"></i> العملة</label>
+                            <select id="pay-currency" required>
+                                <option value="د.ب">دينار بحريني (BHD)</option>
+                                <option value="ر.س">ريال سعودي (SAR)</option>
+                                <option value="$">دولار أمريكي (USD)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-money-check-alt"></i> طريقة الدفع</label>
+                            <select id="pay-method" required>
+                                <option value="نقداً">نقداً (Cash)</option>
+                                <option value="بنفت">بنفت (BenefitPay)</option>
+                                <option value="تحويل بنكي">تحويل بنكي</option>
+                                <option value="بطاقة ائتمان">بطاقة ائتمان (Card)</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label><i class="fas fa-info-circle"></i> وذلك مقابل (الوصف)</label>
+                            <input type="text" id="pay-description" required
+                                placeholder="مثال: دفعة مقدمة لرحلة دبي، رسوم تأشيرة...">
+                        </div>
+
+                        <!-- Financials -->
+                        <div class="amount-container form-group">
+                            <label>المبلغ الكلي</label>
+                            <input type="number" step="0.01" id="pay-total" required>
+                        </div>
+                        <div class="amount-container form-group">
+                            <label>المبلغ المدفوع</label>
+                            <input type="number" step="0.01" id="pay-paid" required>
+                        </div>
+                        <div class="amount-container remaining form-group">
+                            <label>المبلغ المتبقي</label>
+                            <input type="number" id="pay-remaining" readonly>
+                        </div>
+                    </div>
+
+                    <!-- E-Signature -->
+                    <div class="form-group full-width signature-container" style="margin-top: 15px;">
+                        <label><i class="fas fa-pen-nib"></i> التوقيع الإلكتروني (اختياري)</label>
+                        <div
+                            style="border: 1px dashed var(--secondary-color); border-radius: 8px; background: rgba(0,0,0,0.02); overflow: hidden; position: relative; height: 150px;">
+                            <canvas id="signature-pad"
+                                style="width: 100%; height: 100%; touch-action: none; cursor: crosshair;"></canvas>
+                            <button type="button" class="btn btn-sm btn-secondary" id="btn-clear-signature"
+                                style="position: absolute; top: 10px; left: 10px; padding: 5px 10px; font-size: 0.8rem; z-index: 10;">
+                                مسح التوقيع
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-file-invoice"></i> حفظ وإصدار الرصيد
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Receipt Display Section for Print/PDF -->
+            <div id="receipt-preview-container" class="hidden glass-card mt-2">
+                <div class="flex-between mb-2">
+                    <h3>معاينة الرصيد (الوصل)</h3>
+                    <div>
+                        <button id="btn-print-receipt" class="btn btn-secondary" title="طباعة"><i
+                                class="fas fa-print"></i></button>
+                        <button id="btn-pdf-receipt" class="btn btn-danger" title="تحميل PDF"><i
+                                class="fas fa-file-pdf"></i> PDF</button>
+                        <button id="btn-wa-receipt" class="btn" style="background-color: #25D366; color: white;"
+                            title="مشاركة عبر واتساب"><i class="fab fa-whatsapp"></i> واتساب</button>
+                    </div>
+                </div>
+                <div class="receipt-paper" id="receipt-paper">
+                    <!-- Receipt Content will be generated via JS -->
+                </div>
+            </div>
+
+            <!-- List of Previous Receipts -->
+            <div class="section-header mt-4">
+                <h3>سجل الأرصدة</h3>
+            </div>
+            <div id="receipts-container">
+                <!-- Data Tables will be rendered here dynamically -->
+            </div>
+        </section>
+
+        <!-- Section: Backup -->
+        <section id="backup-section" class="content-section">
+            <div class="section-header">
+                <h1>النسخ الاحتياطي والمزامنة</h1>
+                <p>حفظ بياناتك بأمان لنقلها لأي جهاز آخر</p>
+            </div>
+
+            <div class="form-grid">
+                <!-- Google Sheets Integration -->
+                <div class="glass-card" style="grid-column: 1 / -1; margin-bottom: 1rem;">
+                    <h2 style="color: var(--primary-color); display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                        <i class="fas fa-satellite-dish" style="color: #0f9d58;"></i> الربط التلقائي مع Google Sheets
+                    </h2>
+                    <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 1.05rem;">
+                        قم بإضافة رابط (Web App URL) الخاص بـ Google Apps Script لترحيل بيانات المسافرين والأرصدة الجديدة وتخزينها في جداول جوجل سحابياً بشكل فوري.
+                    </p>
+                    <div class="form-group" style="display:flex; flex-direction:row; gap:10px; align-items:stretch;">
+                        <input type="url" id="google-sheets-url" placeholder="https://script.google.com/macros/s/..." style="flex:1; direction:ltr; text-align:left;">
+                        <button id="btn-save-sheet-url" class="btn btn-primary" style="white-space:nowrap; margin-top:0; padding:0 1.5rem; display:flex; align-items:center; gap:8px;"><i class="fas fa-save"></i> حفظ الرابط</button>
+                        <button id="btn-sync-cloud" class="btn btn-success" style="white-space:nowrap; margin-top:0; padding:0 1.5rem; display:flex; align-items:center; gap:8px; background-color: var(--success-color); color: white; border: none; box-shadow: 0 4px 15px rgba(25, 135, 84, 0.25); border-radius: 8px; cursor: pointer; transition: var(--transition);"><i class="fas fa-cloud-download-alt"></i> استيراد من السحابة</button>
+                    </div>
+                </div>
+
+                <!-- Export Card -->
+                <div class="glass-card" style="text-align: center; padding: 3rem 2rem;">
+                    <i class="fas fa-cloud-download-alt"
+                        style="font-size: 5rem; color: #0d6efd; margin-bottom: 1.5rem;"></i>
+                    <h2 style="margin-bottom: 10px; color: var(--primary-color);">إنشاء نسخة احتياطية</h2>
+                    <p style="color: #666; font-size: 1.1rem; margin-bottom: 2rem;">حمّل جميع بيانات المسافرين، المرفقات
+                        (صور الجوازات)، والأرصدة المالية بالكامل في ملف واحد لنقله واستخدامه على أي جهاز آخر.</p>
+                    <button id="btn-backup-export" class="btn btn-primary btn-large" style="width: 100%;">
+                        <i class="fas fa-download"></i> إنشاء وتحميل النسخة
+                    </button>
+                </div>
+
+                <!-- Import Card -->
+                <div class="glass-card" style="text-align: center; padding: 3rem 2rem;">
+                    <i class="fas fa-cloud-upload-alt"
+                        style="font-size: 5rem; color: #198754; margin-bottom: 1.5rem;"></i>
+                    <h2 style="margin-bottom: 10px; color: var(--success-color);">استعادة البيانات</h2>
+                    <p style="color: #666; font-size: 1.1rem; margin-bottom: 2rem;">قم برفع ملف النسخة الاحتياطية الذي
+                        قمت بإنشائه سابقاً من الهاتف أو الكمبيوتر الآخر، لاسترجاع كل بياناتك هنا.</p>
+
+                    <input type="file" id="backup-file-input" accept=".json" style="display:none;">
+                    <button id="btn-backup-import" class="btn btn-success btn-large" style="width: 100%;"
+                        onclick="document.getElementById('backup-file-input').click()">
+                        <i class="fas fa-upload"></i> رفع ملف النسخة الاحتياطية
+                    </button>
+                    <div style="margin-top: 20px; font-size: 0.95rem; color: var(--danger-color); font-weight: bold;">
+                        <i class="fas fa-exclamation-triangle"></i> تنبيه هام: رفع نسخة احتياطية سيستبدل جميع البيانات
+                        الحالية في هذا الجهاز.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal for Moving Passenger -->
+    <div id="move-modal" class="modal">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h3>نقل المسافر إلى رحلة/قائمة أخرى</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>المسافر: <strong id="move-p-name"></strong></p>
+                <div class="form-group mt-2">
+                    <label>الرحلة الجديدة</label>
+                    <input type="text" id="move-trip-name" list="trip-options" required>
+                </div>
+                <div class="form-group mt-2">
+                    <label>القائمة الجديدة</label>
+                    <input type="text" id="move-list-name" list="list-options" required>
+                </div>
+                <input type="hidden" id="move-p-id">
+            </div>
+            <div class="modal-footer">
+                <button id="btn-confirm-move" class="btn btn-primary">تأكيد النقل</button>
+                <button class="btn btn-secondary close-modal-btn">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Editing Passenger -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content glass-card" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h3>تعديل بيانات المسافر</h3>
+                <span class="close-edit-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="edit-passenger-form">
+                    <input type="hidden" id="edit-p-id">
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label>الاسم الكامل</label>
+                            <input type="text" id="edit-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>رقم الهاتف</label>
+                            <input type="tel" id="edit-phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label>رقم الجواز</label>
+                            <input type="text" id="edit-passport" required>
+                        </div>
+                        <div class="form-group">
+                            <label>الجنسية</label>
+                            <input type="text" id="edit-nationality" required>
+                        </div>
+                        <div class="form-group">
+                            <label>الوجهة</label>
+                            <input type="text" id="edit-destination" required>
+                        </div>
+                        <div class="form-group">
+                            <label>تاريخ السفر</label>
+                            <input type="date" id="edit-travel-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label>تاريخ الرجوع</label>
+                            <input type="date" id="edit-return-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label>الرحلة</label>
+                            <input type="text" id="edit-trip-name" list="trip-options" required>
+                        </div>
+                        <div class="form-group">
+                            <label>القائمة</label>
+                            <input type="text" id="edit-list-name" list="list-options" required>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>الملاحظات</label>
+                            <textarea id="edit-notes" rows="2"></textarea>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>المرفقات</label>
+                            <input type="file" id="edit-attachments" multiple accept="image/*,.pdf" class="file-input">
+                            <div id="edit-attachment-preview" class="file-preview-container mt-2"
+                                style="display:flex; gap:10px; flex-wrap:wrap;"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer mt-4">
+                        <button type="submit" class="btn btn-primary">حفظ التعديلات</button>
+                        <button type="button" class="btn btn-secondary close-edit-btn">إلغاء</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Editing Receipt -->
+    <div id="edit-receipt-modal" class="modal">
+        <div class="modal-content glass-card" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h3>تعديل الرصيد / الدفعة</h3>
+                <span class="close-edit-receipt-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="edit-payment-form">
+                    <input type="hidden" id="edit-receipt-id">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label><i class="fas fa-user"></i> اسم المسافر</label>
+                            <input type="text" id="edit-pay-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-phone"></i> رقم الهاتف</label>
+                            <input type="tel" id="edit-pay-phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-plane"></i> اسم الرحلة (اختياري)</label>
+                            <input type="text" id="edit-pay-trip-name" list="trip-options">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-calendar-alt"></i> تاريخ الدفع</label>
+                            <input type="date" id="edit-pay-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-coins"></i> العملة</label>
+                            <select id="edit-pay-currency" required>
+                                <option value="د.ب">دينار بحريني (BHD)</option>
+                                <option value="ر.س">ريال سعودي (SAR)</option>
+                                <option value="$">دولار أمريكي (USD)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-money-check-alt"></i> طريقة الدفع</label>
+                            <select id="edit-pay-method" required>
+                                <option value="نقداً">نقداً (Cash)</option>
+                                <option value="بنفت">بنفت (BenefitPay)</option>
+                                <option value="تحويل بنكي">تحويل بنكي</option>
+                                <option value="بطاقة ائتمان">بطاقة ائتمان (Card)</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label><i class="fas fa-info-circle"></i> وذلك مقابل (الوصف)</label>
+                            <input type="text" id="edit-pay-description" required>
+                        </div>
+
+                        <!-- Financials -->
+                        <div class="amount-container form-group">
+                            <label>المبلغ الكلي</label>
+                            <input type="number" step="0.01" id="edit-pay-total" required>
+                        </div>
+                        <div class="amount-container form-group">
+                            <label>المبلغ المدفوع</label>
+                            <input type="number" step="0.01" id="edit-pay-paid" required>
+                        </div>
+                        <div class="amount-container remaining form-group">
+                            <label>المبلغ المتبقي</label>
+                            <input type="number" id="edit-pay-remaining" readonly>
+                        </div>
+                    </div>
+                    <div class="modal-footer mt-4">
+                        <button type="submit" class="btn btn-primary">حفظ التعديلات</button>
+                        <button type="button" class="btn btn-secondary close-edit-receipt-btn">إلغاء</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Viewing Attachments -->
+    <div id="attachments-modal" class="modal">
+        <div class="modal-content glass-card" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h3>مرفقات المسافر: <span id="view-att-p-name"></span></h3>
+                <span class="close-att-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="attachments-list-container"
+                    style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; padding: 20px;">
+                    <!-- Attachments rendered here -->
+                </div>
+            </div>
+            <div class="modal-footer mt-4">
+                <button type="button" class="btn btn-secondary close-att-btn">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Bulk WhatsApp -->
+    <div id="bulk-wa-modal" class="modal">
+        <div class="modal-content glass-card" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3><i class="fab fa-whatsapp" style="color:#25D366;"></i> إرسال رسالة جماعية (واتساب)</h3>
+                <span class="close-bulk-wa-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>المرسل إليهم: <strong id="bulk-target-name"></strong> (<span id="bulk-count"></span> مسافر)</p>
+                <div class="form-group mt-2">
+                    <label>نص الرسالة</label>
+                    <textarea id="bulk-message" rows="4"
+                        placeholder="اكتب رسالتك هنا... سيتم نسخها تلقائياً مع الرابط لكل رقم"></textarea>
+                </div>
+                <div
+                    style="font-size: 0.85rem; color: #555; background: #f9f9f9; padding: 10px; border-left: 4px solid #25D366; border-radius: 4px; margin-top: 10px;">
+                    <i class="fas fa-info-circle"></i> <strong>تنبيه:</strong> أنظمة الواتساب لا تسمح بفتح 50 محادثة
+                    وإرسالها بضغطة واحدة من المواقع. بفضل هذه الأداة، يمكنك كتابة رسالتك مرة واحدة فقط والضغط على
+                    "إرسال" بجانب كل اسم لفتح المحادثة جاهزة ومكتوبة للإرسال بضغطة زر واحدة فقط لكل شخص!
+                </div>
+
+                <div id="bulk-passengers-list"
+                    style="margin-top: 20px; max-height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 5px;">
+                    <!-- Dynamically populated rows: Name - Phone - [Send Button] -->
+                </div>
+            </div>
+            <div class="modal-footer mt-3">
+                <button type="button" class="btn btn-secondary close-bulk-wa-btn">رجوع وإغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="base64_assets.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
